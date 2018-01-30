@@ -39,7 +39,8 @@ public class MysqlCommand implements CommandGenerator {
 		if (StringUtil.isNotBlank(port)) {
 			loginCmdSb.append(" -P").append(port);
 		}
-		String loginCmd = loginCmdSb.append(" --default-character-set=utf8").toString();
+		//设置编码
+		String loginCmd = loginCmdSb.append(" --default-character-set=utf8").append(" --connect-timeout=4").toString();
 		// 第二步，获取切换数据库到目标数据库的命令语句
 		String switchCmd = new StringBuilder("use ").append(dbName).toString();
 		// 第三步，获取导入的命令语句
