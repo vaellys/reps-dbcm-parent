@@ -14,7 +14,6 @@ import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.stereotype.Repository;
 
 import com.reps.core.orm.IGenericDao;
-import com.reps.core.util.StringUtil;
 import com.reps.dbcm.deploy.entity.CmDeployRunFlag;
 
 @Repository
