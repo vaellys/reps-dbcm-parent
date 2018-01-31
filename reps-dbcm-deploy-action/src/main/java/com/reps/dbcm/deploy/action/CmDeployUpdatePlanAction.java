@@ -10,7 +10,7 @@ import com.reps.core.RepsConstant;
 import com.reps.core.web.AjaxStatus;
 import com.reps.core.web.BaseAction;
 import com.reps.dbcm.deploy.entity.CmDeployUpdatePlan;
-import com.reps.dbcm.deploy.service.ICmDeployRunFlagService;
+import com.reps.dbcm.deploy.service.ICmDeployService;
 import com.reps.dbcm.deploy.service.ICmDeployUpdatePlanService;
 
 /**
@@ -21,7 +21,7 @@ import com.reps.dbcm.deploy.service.ICmDeployUpdatePlanService;
  * @date 2018年1月22日 下午4:01:36
  */
 @Controller
-@RequestMapping(value = RepsConstant.ACTION_BASE_PATH + "/deploy/updateplan")
+@RequestMapping(value = RepsConstant.ACTION_BASE_PATH + "/deploy/plan")
 public class CmDeployUpdatePlanAction extends BaseAction {
 	
 	protected final Logger logger = LoggerFactory.getLogger(CmDeployUpdatePlanAction.class);
@@ -30,7 +30,7 @@ public class CmDeployUpdatePlanAction extends BaseAction {
 	ICmDeployUpdatePlanService cmDeployUpdatePlanService;
 	
 	@Autowired
-	ICmDeployRunFlagService cmDeployRunFlagService;
+	ICmDeployService cmDeployService;
 	
 	@RequestMapping(value = "/executeupdateplan")
 	public Object executeUpdatePlan(CmDeployUpdatePlan cmDeployUpdatePlan) {

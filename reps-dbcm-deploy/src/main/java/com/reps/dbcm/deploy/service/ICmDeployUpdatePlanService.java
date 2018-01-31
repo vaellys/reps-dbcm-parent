@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.reps.core.exception.RepsException;
 import com.reps.dbcm.deploy.entity.CmDeployUpdatePlan;
+import com.reps.dbcm.deploy.entity.OprMessage;
 
 public interface ICmDeployUpdatePlanService {
 
@@ -52,6 +53,6 @@ public interface ICmDeployUpdatePlanService {
 	 */
 	public List<CmDeployUpdatePlan> find(CmDeployUpdatePlan cmDeployUpdatePlan) throws RepsException;
 	
-	public void updatePlanExecutor(CmDeployUpdatePlan cmDeployUpdatePlan) throws RepsException;
+	public OprMessage<String> updatePlanExecutor(CmDeployUpdatePlan cmDeployUpdatePlan) throws RepsException;
 
 }

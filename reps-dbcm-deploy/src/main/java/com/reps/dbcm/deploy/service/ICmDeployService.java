@@ -1,6 +1,7 @@
 package com.reps.dbcm.deploy.service;
 
 import com.reps.core.exception.RepsException;
+import com.reps.core.orm.ListResult;
 import com.reps.dbcm.deploy.entity.CmDeploy;
 
 public interface ICmDeployService {
@@ -33,5 +34,14 @@ public interface ICmDeployService {
 	 * @throws RepsException
 	 */
 	public CmDeploy get(String id) throws RepsException;
+	
+	/**
+	 * 查询所有部署项目
+	 * @param start
+	 * @param pagesize
+	 * @param cmDeploy
+	 * @return
+	 */
+	public ListResult<CmDeploy> query(int start, int pagesize, CmDeploy cmDeploy);
 
 }

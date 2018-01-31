@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.reps.core.exception.RepsException;
+import com.reps.core.orm.ListResult;
 import com.reps.core.util.StringUtil;
 import com.reps.dbcm.deploy.dao.CmDeployDao;
 import com.reps.dbcm.deploy.entity.CmDeploy;
@@ -60,12 +61,21 @@ public class CmDeployServiceImpl implements ICmDeployService {
 		if(StringUtil.isNotBlank(prjCode)) {
 			deploy.setPrjCode(prjCode);
 		}
+		Integer whxh = cmDeploy.getWhxh();
+		if(null != whxh) {
+			deploy.setWhxh(whxh);
+		}
 		dao.update(deploy);
 	}
 
 	@Override
 	public CmDeploy get(String id) throws RepsException {
 		return dao.get(id);
+	}
+
+	@Override
+	public ListResult<CmDeploy> query(int start, int pagesize, CmDeploy cmDeploy) {
+		return dao.query(start, pagesize, cmDeploy);
 	}
 	
 }

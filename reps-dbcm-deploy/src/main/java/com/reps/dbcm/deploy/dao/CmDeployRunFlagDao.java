@@ -47,7 +47,7 @@ public class CmDeployRunFlagDao {
 	}
 
 	public void delete(CmDeployRunFlag cmDeployRunFlag) {
-		dao.delete(cmDeployRunFlag);
+		dao.execute("delete from CmDeployRunFlag");
 	}
 
 	public void update(final CmDeployRunFlag cmDeployRunFlag) {

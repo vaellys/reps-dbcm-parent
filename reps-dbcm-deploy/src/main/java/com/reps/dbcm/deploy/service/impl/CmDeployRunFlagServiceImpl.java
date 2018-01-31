@@ -18,6 +18,8 @@ import com.reps.core.exception.RepsException;
 import com.reps.dbcm.deploy.dao.CmDeployRunFlagDao;
 import com.reps.dbcm.deploy.entity.CmDeployRunFlag;
 import com.reps.dbcm.deploy.entity.CmDeployUpdatePlan;
+import com.reps.dbcm.deploy.entity.OprMessage;
+import com.reps.dbcm.deploy.enums.StatusFlag;
 import com.reps.dbcm.deploy.service.ICmDeployRunFlagService;
 import com.reps.dbcm.deploy.service.ICmDeployUpdatePlanService;
 import com.reps.dbcm.deploy.util.ConfigurePath;
@@ -79,10 +81,10 @@ public class CmDeployRunFlagServiceImpl implements ICmDeployRunFlagService {
 			if (0 == this.getRowCount(SUCCESS.getCode(), WARNING.getCode())) {
 				throw new RepsException("cm_deploy_runflag 状态位不正确， 不允许继续执行后续命令");
 			}
-		} catch (Exception e) {
+		} catch (RepsException e) {
 			e.printStackTrace();
 			logger.error("检查运行状态位异常");
-			throw new RepsException(e);
+			throw e;
 		}
 	}
 
@@ -94,6 +96,11 @@ public class CmDeployRunFlagServiceImpl implements ICmDeployRunFlagService {
 		}
 		return null;
 	}
+	
+	@Override
+	public List<CmDeployRunFlag> query() throws RepsException {
+		return dao.findAll();
+	}
 
 	@Override
 	public int getRowCount(String... updateFlags) throws RepsException {
@@ -102,7 +109,7 @@ public class CmDeployRunFlagServiceImpl implements ICmDeployRunFlagService {
 
 	@Override
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
-	public boolean updateRunFlagAndExecuteRequest(CmDeployRunFlag runFlag, Map<String, String> requestParamsMap) throws RepsException {
+	public OprMessage<String> updateRunFlagAndExecuteRequest(CmDeployRunFlag runFlag, Map<String, String> requestParamsMap) throws RepsException {
 		updateRunFlag(runFlag);
 		return executeRequest(requestParamsMap, runFlag);
 	}
@@ -131,8 +138,7 @@ public class CmDeployRunFlagServiceImpl implements ICmDeployRunFlagService {
 		cmDeployUpdatePlanService.update(bean);
 	}
 
-	public boolean executeRequest(Map<String, String> paramsMap, CmDeployRunFlag runFlag) throws RepsException {
-		boolean retFlag = true;
+	public OprMessage<String> executeRequest(Map<String, String> paramsMap, CmDeployRunFlag runFlag) throws RepsException {
 		String updateFlag = runFlag.getUpdateFlag();
 		Integer planId = runFlag.getPlanId();
 		JSONObject responseResult = ScriptRequest.doPosts(ConfigurePath.AGENT_SERVER_URL, ConfigurePath.AGENT_SCRIPT_EXECUTOR_URI, paramsMap);
@@ -143,12 +149,12 @@ public class CmDeployRunFlagServiceImpl implements ICmDeployRunFlagService {
 			String errorMsg = responseResult.getString("result");
 			cmDeployRunFlag.setUpdateLog(errorMsg);
 			this.updateRunFlag(cmDeployRunFlag);
-			retFlag = false;
+			return new OprMessage<String>(errorMsg, StatusFlag.FAIL);
 		} else {
 			cmDeployRunFlag.setUpdateLog(runFlag.getUpdateLog());
 			this.updateRunFlag(cmDeployRunFlag);
+			return new OprMessage<String>("", StatusFlag.SUCCESS);
 		}
-		return retFlag;
 	}
 
 }

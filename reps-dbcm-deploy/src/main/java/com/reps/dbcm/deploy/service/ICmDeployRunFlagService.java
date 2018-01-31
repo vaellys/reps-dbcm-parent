@@ -1,9 +1,11 @@
 package com.reps.dbcm.deploy.service;
 
+import java.util.List;
 import java.util.Map;
 
 import com.reps.core.exception.RepsException;
 import com.reps.dbcm.deploy.entity.CmDeployRunFlag;
+import com.reps.dbcm.deploy.entity.OprMessage;
 
 public interface ICmDeployRunFlagService {
 
@@ -44,6 +46,8 @@ public interface ICmDeployRunFlagService {
 	
 	public void updateRunFlag(CmDeployRunFlag cmDeployRunFlag) throws RepsException;
 
-	public boolean updateRunFlagAndExecuteRequest(CmDeployRunFlag runFlag, Map<String, String> requestParamsMap) throws RepsException;
+	public OprMessage<String> updateRunFlagAndExecuteRequest(CmDeployRunFlag runFlag, Map<String, String> requestParamsMap) throws RepsException;
+
+	public List<CmDeployRunFlag> query() throws RepsException;
 
 }

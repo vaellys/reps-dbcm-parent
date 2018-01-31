@@ -18,7 +18,7 @@
 	<!--s-top-->
 	<div class="s-top">
 		<div class="s-topCon clear">
-			<h1 class="fl">数据管理控制中心<br><b>Data Center Management</b></h1>
+			<h1 class="fl">数据库配置管理-部署中心<br><b>Data Center Management</b></h1>
 				<c:if test="${fn:trim(userid)==''}">
 					<a class="fr" href="${ctx}/login.do" ><span><img src="${ctx}/theme/portal/images/login.png"></span>请登录</a>
 				</c:if>
