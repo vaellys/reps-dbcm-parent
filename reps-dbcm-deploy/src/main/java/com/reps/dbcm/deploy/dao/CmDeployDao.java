@@ -39,7 +39,7 @@ public class CmDeployDao {
 		if (null != cmDeploy) {
 			String deployName = cmDeploy.getDeployName();
 			if (StringUtil.isNotBlank(deployName)) {
-				dc.add(Restrictions.like("name", deployName, MatchMode.ANYWHERE));
+				dc.add(Restrictions.like("deployName", deployName, MatchMode.ANYWHERE));
 			}
 		}
 		return dao.query(dc, start, pagesize, Order.asc("whxh"));

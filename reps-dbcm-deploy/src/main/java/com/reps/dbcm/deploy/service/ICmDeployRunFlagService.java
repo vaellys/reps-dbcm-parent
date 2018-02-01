@@ -49,5 +49,7 @@ public interface ICmDeployRunFlagService {
 	public OprMessage<String> updateRunFlagAndExecuteRequest(CmDeployRunFlag runFlag, Map<String, String> requestParamsMap) throws RepsException;
 
 	public List<CmDeployRunFlag> query() throws RepsException;
+	
+	public boolean checkRunFlagExist(Integer planId, String... updateFlags) throws RepsException;
 
 }

@@ -160,68 +160,27 @@ public class CmDeployUpdatePlanServiceImpl implements ICmDeployUpdatePlanService
 			List<CmDeployUpdatePlan> updatePlanlist = findUpdatePlan(cmDeployUpdatePlan);
 			if (null != updatePlanlist && !updatePlanlist.isEmpty()) {
 				for (CmDeployUpdatePlan updatePlan : updatePlanlist) {
-					Integer planId = updatePlan.getPlanId();
-					if (null == planId) {
-						logger.error("更新任务ID为空 planId");
-						throw new RepsException("更新任务ID为空");
-					}
-					String openWith = updatePlan.getOpenWith();
-					if (StringUtil.isBlank(openWith)) {
-						logger.error("部署项目下的更新任务打开方式为空 planId {}", planId);
-						throw new RepsException("部署项目下的更新任务打开方式为空 planId " + planId);
-					}
-					// 设置打开方式
-					paramsMap.put("openWith", openWith);
-					Date timePlan = updatePlan.getTimePlan();
-					if (null == timePlan || timePlan.getTime() <= System.currentTimeMillis()) {
-						logger.error("部署项目下的任务计划执行时间小于或等于当前时间  planId {}", planId);
-						throw new RepsException("部署项目下的任务计划执行时间小于或等于当前时间  planId " + planId);
-					}
-					String scriptName = metaDataMap.get("TEMP1SCRIPT");
-					if (StringUtil.isBlank(scriptName)) {
-						logger.error("脚本文件名字为空 planId {}", planId);
-						throw new RepsException("脚本文件名字为空 planId " + planId);
-					}
+					// 检查字段参数
+					Integer planId = checkFieldParam(metaDataMap, paramsMap, updatePlan);
 					// 设置参数
 					CmDeployRunFlag cmDeployRunFlag = new CmDeployRunFlag();
 					cmDeployRunFlag.setPlanId(planId);
-					// 获取开始脚本
-					String beginScrip = updatePlan.getBeginScrip();
-					if (StringUtil.isNotBlank(beginScrip)) {
-						// 执行脚本前设置运行状态
-						cmDeployRunFlag.setUpdateFlag(UpdateFlag.STEP1.getCode());
-						cmDeployRunFlag.setUpdateLog("---------begin script----------");
-						oprMessage = executeUpdatePlan(metaDataMap, paramsMap, cmDeployRunFlag, new String[] { "TEMP1SCRIPT", beginScrip });
-					} else {
-						logger.info("该更新任务planId {} step1无可执行脚本", planId);
-					}
+					// 检查执行脚本的步骤
+					oprMessage = runBeginScript(oprMessage, metaDataMap, paramsMap, updatePlan, cmDeployRunFlag);
 					if (StatusFlag.SUCCESS == oprMessage.getStatus()) {
-						String script = updatePlan.getScript();
-						if (StringUtil.isNotBlank(script)) {
-							// 执行脚本前设置运行状态
-							cmDeployRunFlag.setUpdateFlag(UpdateFlag.STEP2.getCode());
-							cmDeployRunFlag.setUpdateLog("---------script----------");
-							executeUpdatePlan(metaDataMap, paramsMap, cmDeployRunFlag, new String[] { "TEMP2CLOB", script });
-						} else {
-							logger.info("该更新任务planId {} step2无可执行脚本", planId);
-						}
+						runUpdateScript(metaDataMap, paramsMap, updatePlan, cmDeployRunFlag);
 					} else {
 						return oprMessage;
 					}
-					String endScript = updatePlan.getEndScrip();
-					if (StringUtil.isNotBlank(endScript)) {
-						// 执行脚本前设置运行状态
-						cmDeployRunFlag.setUpdateFlag(UpdateFlag.STEP3.getCode());
-						cmDeployRunFlag.setUpdateLog("---------end script----------");
-						oprMessage = executeUpdatePlan(metaDataMap, paramsMap, cmDeployRunFlag, new String[] { "TEMP3SCRIPT", endScript });
-					} else {
-						logger.info("该更新任务planId {} step3无可执行脚本", planId);
-					}
+					oprMessage = runEndScript(oprMessage, metaDataMap, paramsMap, updatePlan, cmDeployRunFlag);
+
 					// 最后更新任务和运行表的状态
 					if (StatusFlag.SUCCESS == oprMessage.getStatus()) {
 						cmDeployRunFlag.setUpdateFlag(UpdateFlag.SUCCESS.getCode());
 						updateStatus(cmDeployRunFlag, UpdateFlag.SUCCESS.getCode());
 					} else {
+						cmDeployRunFlag.setUpdateFlag(UpdateFlag.ERROR.getCode());
+						updateStatus(cmDeployRunFlag, oprMessage.getMessage());
 						return oprMessage;
 					}
 				}
@@ -236,6 +195,73 @@ public class CmDeployUpdatePlanServiceImpl implements ICmDeployUpdatePlanService
 			logger.error("执行部署更新任务异常");
 			throw e;
 		}
+	}
+
+	private Integer checkFieldParam(Map<String, String> metaDataMap, Map<String, String> paramsMap, CmDeployUpdatePlan updatePlan) {
+		Integer planId = updatePlan.getPlanId();
+		if (null == planId) {
+			logger.error("更新任务ID为空 planId");
+			throw new RepsException("更新任务ID为空");
+		}
+		String openWith = updatePlan.getOpenWith();
+		if (StringUtil.isBlank(openWith)) {
+			logger.error("部署项目下的更新任务打开方式为空 planId {}", planId);
+			throw new RepsException("部署项目下的更新任务打开方式为空 planId " + planId);
+		}
+		// 设置打开方式
+		paramsMap.put("openWith", openWith);
+		Date timePlan = updatePlan.getTimePlan();
+		if (null == timePlan || timePlan.getTime() <= System.currentTimeMillis()) {
+			logger.error("部署项目下的任务计划执行时间小于或等于当前时间  planId {}", planId);
+			throw new RepsException("部署项目下的任务计划执行时间小于或等于当前时间  planId " + planId);
+		}
+		String scriptName = metaDataMap.get("TEMP1SCRIPT");
+		if (StringUtil.isBlank(scriptName)) {
+			logger.error("脚本文件名字为空 planId {}", planId);
+			throw new RepsException("脚本文件名字为空 planId " + planId);
+		}
+		return planId;
+	}
+
+	private OprMessage<String> runEndScript(OprMessage<String> oprMessage, Map<String, String> metaDataMap, Map<String, String> paramsMap, CmDeployUpdatePlan updatePlan,
+			CmDeployRunFlag cmDeployRunFlag) {
+		String endScript = updatePlan.getEndScrip();
+		if (StringUtil.isNotBlank(endScript)) {
+			// 执行脚本前设置运行状态
+			cmDeployRunFlag.setUpdateFlag(UpdateFlag.STEP3.getCode());
+			cmDeployRunFlag.setUpdateLog("---------end script----------");
+			oprMessage = executeUpdatePlan(metaDataMap, paramsMap, cmDeployRunFlag, new String[] { MetaKey.TEMP3_SCRIPT, endScript });
+		} else {
+			logger.info("该更新任务planId {} step3无可执行脚本", cmDeployRunFlag.getPlanId());
+		}
+		return oprMessage;
+	}
+
+	private void runUpdateScript(Map<String, String> metaDataMap, Map<String, String> paramsMap, CmDeployUpdatePlan updatePlan, CmDeployRunFlag cmDeployRunFlag) {
+		String script = updatePlan.getScript();
+		if (StringUtil.isNotBlank(script)) {
+			// 执行脚本前设置运行状态
+			cmDeployRunFlag.setUpdateFlag(UpdateFlag.STEP2.getCode());
+			cmDeployRunFlag.setUpdateLog("---------script----------");
+			executeUpdatePlan(metaDataMap, paramsMap, cmDeployRunFlag, new String[] { MetaKey.TEMP2_CLOB, script });
+		} else {
+			logger.info("该更新任务planId {} step2无可执行脚本", cmDeployRunFlag.getPlanId());
+		}
+	}
+
+	private OprMessage<String> runBeginScript(OprMessage<String> oprMessage, Map<String, String> metaDataMap, Map<String, String> paramsMap, CmDeployUpdatePlan updatePlan,
+			CmDeployRunFlag cmDeployRunFlag) {
+		// 获取开始脚本
+		String beginScrip = updatePlan.getBeginScrip();
+		if (StringUtil.isNotBlank(beginScrip)) {
+			// 执行脚本前设置运行状态
+			cmDeployRunFlag.setUpdateFlag(UpdateFlag.STEP1.getCode());
+			cmDeployRunFlag.setUpdateLog("---------begin script----------");
+			oprMessage = executeUpdatePlan(metaDataMap, paramsMap, cmDeployRunFlag, new String[] { MetaKey.TEMP1_SCRIPT, beginScrip });
+		} else {
+			logger.info("该更新任务planId {} step1无可执行脚本", cmDeployRunFlag.getPlanId());
+		}
+		return oprMessage;
 	}
 
 	private OprMessage<String> executeUpdatePlan(Map<String, String> metaDataMap, Map<String, String> paramsMap, CmDeployRunFlag cmDeployRunFlag, String[] scriptParams) {
@@ -260,8 +286,8 @@ public class CmDeployUpdatePlanServiceImpl implements ICmDeployUpdatePlanService
 	}
 
 	private void putParams(Map<String, String> paramsMap, String scriptContent, String scriptName) {
-		paramsMap.put("script", scriptContent);
-		paramsMap.put("scriptName", scriptName);
+		paramsMap.put(MetaKey.SCRIPT, scriptContent);
+		paramsMap.put(MetaKey.SCRIPT_NAME, scriptName);
 	}
 
 	private List<CmDeployUpdatePlan> findUpdatePlan(CmDeployUpdatePlan cmDeployUpdatePlan) {

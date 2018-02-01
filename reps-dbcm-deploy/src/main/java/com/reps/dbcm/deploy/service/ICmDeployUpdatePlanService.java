@@ -53,6 +53,13 @@ public interface ICmDeployUpdatePlanService {
 	 */
 	public List<CmDeployUpdatePlan> find(CmDeployUpdatePlan cmDeployUpdatePlan) throws RepsException;
 	
+	/**
+	 * 脚本执行器
+	 * 执行 开始脚本 更新脚本 结束脚本
+	 * @param cmDeployUpdatePlan
+	 * @return OprMessage<String>
+	 * @throws RepsException
+	 */
 	public OprMessage<String> updatePlanExecutor(CmDeployUpdatePlan cmDeployUpdatePlan) throws RepsException;
 
 }

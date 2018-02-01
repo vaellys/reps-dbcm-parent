@@ -48,41 +48,6 @@
 		window.location.href= "list.mvc";
 	};
 	
-	function buildIdParams(msg){
-		if ($("input[type=checkbox][name=id]:checked").length == 0) {
-			messager.info(msg);
-			return false;
-		}
-		var ids = $("input[type=hidden][name=ids]");
-		ids.val("");
-		$.each($("input[type=checkbox][name=id]:checked"), function(i, obj) {
-			if (ids.val() == "") {
-				ids.val($(obj).val());
-			} else {
-				ids.val(ids.val() + "," + $(obj).val());
-			}
-		});
-		return true;
-	}
-	
-	var checkDeleteChecked = function() {
-		if(buildIdParams("请选择要批量删除的物品信息")){
-			$("#queryForm").attr("action", "batchdelete.mvc");
-			return true;
-		}else{
-			return false;
-		}
-	};
-	
-	var checkPublishChecked = function(){
-		if(buildIdParams("请选择要批量发布的物品信息")){
-			$("#queryForm").attr("action", "batchpublish.mvc");
-			return true;
-		}else{
-			return false;
-		}
-	};
-	
 </script>
 </body>
 </html>

@@ -96,7 +96,7 @@ public class CmDeployRunFlagServiceImpl implements ICmDeployRunFlagService {
 		}
 		return null;
 	}
-	
+
 	@Override
 	public List<CmDeployRunFlag> query() throws RepsException {
 		return dao.findAll();
@@ -155,6 +155,11 @@ public class CmDeployRunFlagServiceImpl implements ICmDeployRunFlagService {
 			this.updateRunFlag(cmDeployRunFlag);
 			return new OprMessage<String>("", StatusFlag.SUCCESS);
 		}
+	}
+
+	@Override
+	public boolean checkRunFlagExist(Integer planId, String... updateFlags) throws RepsException {
+		return dao.getRowCount(planId, updateFlags) > 0 ? true : false;
 	}
 
 }

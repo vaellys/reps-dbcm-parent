@@ -24,9 +24,6 @@ public class MessageServiceImpl implements IMessageService {
 
 	private Logger logger = LoggerFactory.getLogger(MessageServiceImpl.class);
 
-	/** 命令所在上级目录 */
-	private static final String BIN = "bin";
-
 	/**
 	 * 在指定临时目录中，生成脚本文件
 	 * 
@@ -48,29 +45,6 @@ public class MessageServiceImpl implements IMessageService {
 			throw new RepsException("生成脚本文件失败", e);
 		}
 		return scriptFile;
-	}
-
-	/**
-	 * 创建数据库执行完整命令
-	 * 
-	 * @param cmdHome
-	 *            命令安装目录
-	 * @param cmd
-	 *            执行命令名称
-	 * @return String
-	 * @throws RepsException
-	 */
-	public String buildCmdPath(String cmdHome, String cmd) throws RepsException {
-		try {
-			if (StringUtil.isBlank(cmdHome)) {
-				throw new RepsException("数据库安装目录未指定");
-			}
-			return FileUtils.getFile(cmdHome, BIN, cmd).getCanonicalPath();
-		} catch (Exception e) {
-			e.printStackTrace();
-			logger.error("生成数据库执行命令失败", e);
-			throw new RepsException("生成数据库执行命令失败", e);
-		}
 	}
 
 	@Override
@@ -97,7 +71,7 @@ public class MessageServiceImpl implements IMessageService {
 			}
 			File scriptFile = scriptFileHandler(message);
 			if (DatabaseType.MYSQL.getType().equals(openWith)) {
-				DbConfiguration databaseInfo = buildDbConfig(message, scriptFile, DatabaseType.MYSQL.getCommand());
+				DbConfiguration databaseInfo = buildDbConfig(message, scriptFile);
 				CommandExecutor commandExecutor = new DbCommandExecutor(new MysqlCommand(databaseInfo));
 				return commandExecutor.execute();
 			} else {
@@ -119,12 +93,12 @@ public class MessageServiceImpl implements IMessageService {
 	 * @return
 	 * @throws Exception
 	 */
-	private DbConfiguration buildDbConfig(Message message, File scriptFile, String dbCmd) throws RepsException {
+	private DbConfiguration buildDbConfig(Message message, File scriptFile) throws RepsException {
 		try {
 			DbConfiguration databaseInfo = new DbConfiguration();
 			BeanUtils.copyProperties(databaseInfo, message);
 			databaseInfo.setScriptPath(scriptFile.getCanonicalPath());
-			databaseInfo.setCmdPath(buildCmdPath(message.getCmdHome(), dbCmd));
+			databaseInfo.setCmdPath(message.getCmdHome());
 			return databaseInfo;
 		} catch (Exception e) {
 			e.printStackTrace();
