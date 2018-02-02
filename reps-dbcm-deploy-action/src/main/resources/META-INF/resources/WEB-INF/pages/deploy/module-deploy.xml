@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module name="dbcmdeploy" title="数据库配置管理-部署端" showOrder="20"
+	icon="seventeen_icon">
+	<description>数据库配置管理</description>
+	<menu>
+		<node code="dbcmdeploy010000" name="数据库配置管理-部署端" type="Catalog"
+			showOrder="1" icon="report" newpage="false">
+			<nodes>
+				<node code="dbcmdeploy010100" name="部署项目管理" showOrder="1"
+					newpage="false" type="Action">
+					<action>
+						/reps/deploy/cmdepy/list.mvc;
+					</action>
+					<nodes>
+						<node code="dbcmdeploy010101" name="部署项目修改" showOrder="1"
+							newpage="false" type="Operate">
+							<action>/reps/deploy/cmdepy/toedit.mvc;/reps/deploy/cmdepy/edit.mvc;</action>
+						</node>
+						<node code="dbcmdeploy010102" name="部署项目详情" showOrder="2"
+							newpage="false" type="Operate">
+							<action>/reps/deploy/cmdepy/show.mvc;</action>
+						</node>
+						<node code="dbcmdeploy010103" name="执行部署" showOrder="3"
+							newpage="false" type="Operate">
+							<action>/reps/deploy/cmdepy/executedeploy.mvc;</action>
+						</node>
+					</nodes>
+				</node>
+				<node code="dbcmdeploy010200" name="部署项目执行进度" showOrder="2"
+					newpage="false" type="Action">
+					<action>
+						/reps/deploy/runflag/list.mvc;
+					</action>
+					<nodes>
+						<node code="dbcmdeploy010201" name="部署项目删除" showOrder="1"
+							newpage="false" type="Operate">
+							<action>/reps/deploy/runflag/delete.mvc;</action>
+						</node>
+					</nodes>
+				</node>
+			</nodes>
+		</node>
+	</menu>
+	<consts>
+		<citem name="agentServerUrl" value="http://localhost:8899"></citem>
+	</consts>
+</module>

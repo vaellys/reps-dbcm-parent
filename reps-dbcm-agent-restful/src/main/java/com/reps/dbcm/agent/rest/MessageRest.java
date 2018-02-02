@@ -35,7 +35,7 @@ public class MessageRest extends RestBaseController {
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.error("脚本执行异常", e);
-			return wrap(RestResponseStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+			return wrap(RestResponseStatus.INTERNAL_SERVER_ERROR, "", e.getMessage());
 		}
 	}
 

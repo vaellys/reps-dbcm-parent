@@ -1,33 +1,18 @@
 package com.reps.dbcm.agent.engine;
 
-import static com.reps.dbcm.agent.enums.StatusFlag.FAIL;
-import static com.reps.dbcm.agent.enums.StatusFlag.SUCCESS;
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.Arrays;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.reps.core.exception.RepsException;
 import com.reps.dbcm.agent.entity.OprMessage;
 
-public class DbCommandExecutor implements CommandExecutor {
+public class DbCommandExecutor extends BaseCommandExecutor {
 
-	private static final Logger logger = LoggerFactory.getLogger(CommandExecutor.class);
-
-	private CommandGenerator commandGenerator;
-
-	/**
-	 * 构造具体的命令执行器，通过命令生成器
-	 * 
-	 * @param commandGenerator
-	 */
 	public DbCommandExecutor(CommandGenerator commandGenerator) {
-		this.commandGenerator = commandGenerator;
+		super(commandGenerator);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -60,21 +45,13 @@ public class DbCommandExecutor implements CommandExecutor {
 					process.destroy();
 				}
 			}
-			return 0 == process.waitFor() ? new OprMessage<String>("脚本执行成功", SUCCESS) : new OprMessage<String>(msg.toString(), FAIL);
+			return  getProcessResult(process, msg);
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.error("执行命令时发生异常！ " + cmds, e);
 			throw new RepsException(e);
 		} finally {
-			if (error != null) {
-				try {
-					error.close();
-				} catch (Exception e) {
-					e.printStackTrace();
-					logger.error("", e);
-					throw new RepsException(e);
-				}
-			}
+			this.closeStream(error);
 		}
 	}
 }

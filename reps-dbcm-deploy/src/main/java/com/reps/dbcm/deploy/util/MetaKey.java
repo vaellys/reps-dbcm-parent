@@ -18,12 +18,12 @@ public class MetaKey {
 	public static final String SCRIPT_NAME = "scriptName";
 	
 	static {
-		FIELD_MAPS.put("DBHOME", "cmdHome");
 		FIELD_MAPS.put("DBNAME", "dbName");
 		FIELD_MAPS.put("DBUSER", "username");
 		FIELD_MAPS.put("DBPASSWORD", "password");
 		FIELD_MAPS.put("DBHOST", "host");
 		FIELD_MAPS.put("DBPORT", "port");
 		FIELD_MAPS.put("TEMPDIR", "tempDir");
+		FIELD_MAPS.put("DBUTILITYDIR", "cmdHome");
 	}
 }

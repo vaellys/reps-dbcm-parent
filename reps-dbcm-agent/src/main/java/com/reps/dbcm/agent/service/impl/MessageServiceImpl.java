@@ -11,9 +11,11 @@ import org.springframework.stereotype.Service;
 
 import com.reps.core.exception.RepsException;
 import com.reps.core.util.StringUtil;
+import com.reps.dbcm.agent.engine.BaseCommandExecutor;
 import com.reps.dbcm.agent.engine.CommandExecutor;
 import com.reps.dbcm.agent.engine.DbCommandExecutor;
 import com.reps.dbcm.agent.engine.MysqlCommand;
+import com.reps.dbcm.agent.engine.SqlServerCommand;
 import com.reps.dbcm.agent.entity.DbConfiguration;
 import com.reps.dbcm.agent.entity.Message;
 import com.reps.dbcm.agent.enums.DatabaseType;
@@ -42,7 +44,7 @@ public class MessageServiceImpl implements IMessageService {
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.error("生成脚本文件失败", e);
-			throw new RepsException("生成脚本文件失败", e);
+			throw new RepsException(e);
 		}
 		return scriptFile;
 	}
@@ -70,9 +72,12 @@ public class MessageServiceImpl implements IMessageService {
 				throw new RepsException("脚本文件内容为空");
 			}
 			File scriptFile = scriptFileHandler(message);
+			DbConfiguration databaseInfo = buildDbConfig(message, scriptFile);
 			if (DatabaseType.MYSQL.getType().equals(openWith)) {
-				DbConfiguration databaseInfo = buildDbConfig(message, scriptFile);
 				CommandExecutor commandExecutor = new DbCommandExecutor(new MysqlCommand(databaseInfo));
+				return commandExecutor.execute();
+			} else if (DatabaseType.SQLSERVER.getType().equals(openWith)) {
+				CommandExecutor commandExecutor = new BaseCommandExecutor(new SqlServerCommand(databaseInfo));
 				return commandExecutor.execute();
 			} else {
 				throw new RepsException("暂不支持该类型的数据库命令");
@@ -80,10 +85,10 @@ public class MessageServiceImpl implements IMessageService {
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.error("执行脚本文件失败", e);
-			throw new RepsException(e);
+			throw e;
 		}
 	}
-
+	
 	/**
 	 * 
 	 * @param message

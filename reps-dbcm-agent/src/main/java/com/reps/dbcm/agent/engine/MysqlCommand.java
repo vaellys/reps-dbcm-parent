@@ -3,15 +3,11 @@ package com.reps.dbcm.agent.engine;
 import com.reps.core.exception.RepsException;
 import com.reps.core.util.StringUtil;
 import com.reps.dbcm.agent.entity.DbConfiguration;
-import com.reps.dbcm.agent.enums.DatabaseType;
 
 public class MysqlCommand implements CommandGenerator {
 
 	private DbConfiguration dbConfiguration;
 	
-	/** 命令所在上级目录 */
-	private static final String BIN = "bin";
-
 	public MysqlCommand(DbConfiguration dbConfiguration) {
 		this.dbConfiguration = dbConfiguration;
 	}
@@ -24,8 +20,8 @@ public class MysqlCommand implements CommandGenerator {
 		String host = dbConfiguration.getHost();
 		// 数据库端口
 		String port = dbConfiguration.getPort();
-		// 获取命令路径 (数据库安装目录)
-		String cmdPath = ConfigValidator.buildFullCmdPath(dbConfiguration.getCmdPath(), BIN, DatabaseType.MYSQL.getCommand());
+		// 获取命令路径 (数据库安装目录完整路径)
+		String cmdPath = dbConfiguration.getCmdPath();
 		// 获取数据库用户名称
 		String username = dbConfiguration.getUsername();
 		// 获取数据库密码
