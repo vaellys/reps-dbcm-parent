@@ -55,5 +55,23 @@ public class ConfigValidator {
 			throw new RepsException("生成数据库执行命令失败", e);
 		}
 	}
-
+	
+	/**
+	 * 获取数据库执行命令完整路径
+	 * @param cmdPath
+	 * @return
+	 * @throws RepsException
+	 */
+	public static String formatCmdPath(String cmdPath) throws RepsException {
+		try {
+			if (StringUtil.isBlank(cmdPath)) {
+				throw new RepsException("数据库执行命令未指定");
+			}
+			return FileUtils.getFile(cmdPath).getCanonicalPath();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RepsException("生成数据库执行命令失败", e);
+		}
+	}
+	
 }

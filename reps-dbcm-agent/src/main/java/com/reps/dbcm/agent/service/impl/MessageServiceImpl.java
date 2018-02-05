@@ -13,8 +13,10 @@ import com.reps.core.exception.RepsException;
 import com.reps.core.util.StringUtil;
 import com.reps.dbcm.agent.engine.BaseCommandExecutor;
 import com.reps.dbcm.agent.engine.CommandExecutor;
+import com.reps.dbcm.agent.engine.ConfigValidator;
 import com.reps.dbcm.agent.engine.DbCommandExecutor;
 import com.reps.dbcm.agent.engine.MysqlCommand;
+import com.reps.dbcm.agent.engine.OracleCommand;
 import com.reps.dbcm.agent.engine.SqlServerCommand;
 import com.reps.dbcm.agent.entity.DbConfiguration;
 import com.reps.dbcm.agent.entity.Message;
@@ -79,6 +81,9 @@ public class MessageServiceImpl implements IMessageService {
 			} else if (DatabaseType.SQLSERVER.getType().equals(openWith)) {
 				CommandExecutor commandExecutor = new BaseCommandExecutor(new SqlServerCommand(databaseInfo));
 				return commandExecutor.execute();
+			} else if (DatabaseType.ORACLE.getType().equals(openWith)) {
+				CommandExecutor commandExecutor = new BaseCommandExecutor(new OracleCommand(databaseInfo));
+				return commandExecutor.execute();
 			} else {
 				throw new RepsException("暂不支持该类型的数据库命令");
 			}
@@ -103,7 +108,7 @@ public class MessageServiceImpl implements IMessageService {
 			DbConfiguration databaseInfo = new DbConfiguration();
 			BeanUtils.copyProperties(databaseInfo, message);
 			databaseInfo.setScriptPath(scriptFile.getCanonicalPath());
-			databaseInfo.setCmdPath(message.getCmdHome());
+			databaseInfo.setCmdPath(ConfigValidator.formatCmdPath(message.getCmdHome()));
 			return databaseInfo;
 		} catch (Exception e) {
 			e.printStackTrace();

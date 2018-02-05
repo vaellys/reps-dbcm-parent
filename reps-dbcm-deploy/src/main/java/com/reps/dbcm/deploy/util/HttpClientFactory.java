@@ -45,7 +45,7 @@ public class HttpClientFactory {
 	/**
 	 * 连接超时时间 可以配到配置文件 （单位毫秒）
 	 */
-	private static int MAX_TIME_OUT = 10000;
+	private static int MAX_TIME_OUT = 20000;
 
 	// 设置整个连接池最大连接数
 	private static int MAX_CONN = 200;
